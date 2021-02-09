@@ -1,6 +1,6 @@
 # flutter_todoapp
 
-An todo app made with futter
+A todo app made with flutter
 
 ## Getting Started
 
