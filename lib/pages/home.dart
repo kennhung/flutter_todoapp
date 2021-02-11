@@ -13,7 +13,9 @@ class Home extends StatelessWidget {
       ),
       body: TaskList(),
       floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, '/add');
+          },
           backgroundColor: Colors.amber,
           child: Icon(Icons.add)),
     );

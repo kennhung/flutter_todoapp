@@ -22,7 +22,7 @@ class Task {
     id = map[columnId];
     name = map[columnName];
     dueDate = map[columnDueDate];
-    finished = map[columnFinished];
+    finished = (map[columnFinished] == 1);
   }
 
   // convenience method to create a Map from this Word object
@@ -30,7 +30,7 @@ class Task {
     var map = <String, dynamic>{
       columnName: name,
       columnDueDate: dueDate,
-      columnFinished: finished
+      columnFinished: finished ? 1 : 0
     };
 
     if (id != null) {
