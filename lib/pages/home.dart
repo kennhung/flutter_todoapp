@@ -1,7 +1,16 @@
+import 'package:channel/channel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_todoapp/database/task.dart';
 
+class AddPageArgument {
+  Channel<int> channel;
+
+  AddPageArgument({this.channel});
+}
+
 class Home extends StatelessWidget {
+  final channel = Channel<int>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,10 +20,16 @@ class Home extends StatelessWidget {
         ),
         backgroundColor: Colors.amber,
       ),
-      body: TaskList(),
+      body: TaskList(
+        channel: channel,
+      ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/add');
+            Navigator.pushNamed(
+              context,
+              '/add',
+              arguments: AddPageArgument(channel: channel),
+            );
           },
           backgroundColor: Colors.amber,
           child: Icon(Icons.add)),
@@ -64,6 +79,10 @@ class ListEmptyWidget extends StatelessWidget {
 }
 
 class TaskList extends StatefulWidget {
+  final Channel<int> channel;
+
+  TaskList({this.channel});
+
   @override
   _TaskListState createState() => _TaskListState();
 }
@@ -86,15 +105,24 @@ class _TaskListState extends State<TaskList> {
 
   @override
   Widget build(BuildContext context) {
+    widget.channel.asStream().listen((event) {
+      getTodoList();
+    });
+
     return tasks.length > 0
         ? ListView(
             children: tasks.map((task) {
               return TaskListTitle(
                 task: task,
                 onToggleFinish: () {
-                  setState(() {
-                    task.finished = !task.finished;
-                  });
+                  Task t = task;
+                  t.finished = !t.finished;
+                  TaskDB.updateTodo(t);
+                  getTodoList();
+                },
+                onDelete: () {
+                  TaskDB.deleteTodo(task.id);
+                  getTodoList();
                 },
               );
             }).toList(),

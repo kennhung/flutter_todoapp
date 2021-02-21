@@ -50,7 +50,7 @@ class TaskDB {
       onCreate: (db, version) {
         return db.execute(
           "CREATE TABLE tasks("
-          "$columnId TEXT PRIMARY KEY, "
+          "$columnId INTEGER PRIMARY KEY, "
           "$columnName TEXT, "
           "$columnDueDate DATETIME, "
           "$columnFinished INTEGER"
@@ -91,16 +91,16 @@ class TaskDB {
     await db.update(
       'tasks',
       task.toMap(),
-      where: "id = ?",
+      where: "$columnId = ?",
       whereArgs: [task.id],
     );
   }
 
-  static Future<void> deleteTodo(String id) async {
+  static Future<void> deleteTodo(int id) async {
     final Database db = await getDBConnect();
     await db.delete(
       'tasks',
-      where: "id = ?",
+      where: "$columnId = ?",
       whereArgs: [id],
     );
   }
@@ -109,28 +109,43 @@ class TaskDB {
 class TaskListTitle extends StatelessWidget {
   final Task task;
   final Function onToggleFinish;
+  final Function onDelete;
 
-  TaskListTitle({this.task, this.onToggleFinish});
+  TaskListTitle({this.task, this.onToggleFinish, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        title: Text(
-          '${task.name}',
-          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20.0),
+      title: Text(
+        '${task.name}',
+        style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20.0),
+      ),
+      subtitle: task.dueDate != null
+          ? Text(
+              '${DateFormat('yyyy-MM-dd kk:mm').format(task.dueDate.toLocal())}')
+          : null,
+      leading: IconButton(
+        icon: Icon(
+          task.finished
+              ? Icons.check_circle_outline
+              : Icons.radio_button_unchecked_outlined,
+          color: Colors.black,
         ),
-        subtitle: task.dueDate != null
-            ? Text(
-                '${DateFormat('yyyy-MM-dd kk:mm').format(task.dueDate.toLocal())}')
-            : null,
-        leading: IconButton(
-          icon: Icon(
-            task.finished
-                ? Icons.check_circle_outline
-                : Icons.radio_button_unchecked_outlined,
-            color: Colors.black,
+        onPressed: onToggleFinish,
+      ),
+      trailing: PopupMenuButton<int>(
+        onSelected: (selected) {
+          if (selected == 1) {
+            onDelete();
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 1,
+            child: Text("Delete"),
           ),
-          onPressed: onToggleFinish,
-        ));
+        ],
+      ),
+    );
   }
 }

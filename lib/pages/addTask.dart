@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todoapp/database/task.dart';
+import 'package:flutter_todoapp/pages/home.dart';
 
 class AddTask extends StatefulWidget {
   @override
@@ -13,6 +14,8 @@ class _AddTaskState extends State<AddTask> {
 
   @override
   Widget build(BuildContext context) {
+    final AddPageArgument args = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -55,6 +58,7 @@ class _AddTaskState extends State<AddTask> {
                     child: FlatButton.icon(
                       onPressed: () {
                         TaskDB.addTodo(Task(name: taskNameController.text));
+                        args.channel.send(0);
                         Navigator.pop(context);
                       },
                       icon: Icon(Icons.send),
